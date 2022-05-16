@@ -1,6 +1,7 @@
-const res = require('express/lib/response');
 const mongoose = require('mongoose');
-const User = require('../models/User')
+const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const salt = bcrypt.genSaltSync(10);
 
 const getAllUsers = async (req,res) => {
     try {
@@ -16,7 +17,7 @@ const getAllUsers = async (req,res) => {
 const createUser =  async (req,res) => {
     const data = req.body;
     try {
-        const user = await User.create(data);
+        const user = await User.create({...data,password:data.password.length>5 ? bcrypt.hashSync(data.password, salt) : data.password});
         return res.status(200).json(user);
     } catch (error) {
         return res.status(500).json(error)
