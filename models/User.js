@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
-
+const {isEmail} = require('validator')
 const UserSchema = new mongoose.Schema({
     phoneNumber: {
         type: String,
         required: [true, 'phone number must provided'],
         trim: true,
+        unique: [true, 'phone number is existed'],
         maxlength: [10,'phone number can not be more than 10 characters']
     },
     name: {
@@ -23,6 +24,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: [true,'email must provided'],
         trim: true,
+        unique: [true,'email is existed'],
         maxlength: [30,'email can not be more than 30 characters']
     },
     address:{

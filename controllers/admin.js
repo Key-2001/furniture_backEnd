@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const salt = bcrypt.genSaltSync(10);
 
 
+
 const getAllAdmin = async (req,res) => {
     try {
         const admins = await Admin.find();

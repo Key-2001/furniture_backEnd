@@ -1,23 +1,27 @@
 const express = require('express')
 const cors = require('cors');
+const cookieParser = require('cookie-parser')
+
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT ||8080;
 const users = require('./routes/user');
 const admin = require('./routes/admin')
 const notFound = require('./middleware/not-found')
-const connectDB = require('./db/connect')
+const connectDB = require('./db/connect');
+const { requireAuth } = require('./middleware/authMiddleware');
 
 // middleware
 app.use(express.urlencoded({extended: false}));
 app.use(express.json())
+app.use(cookieParser())
 app.use(cors({
     origin:"*",
     credentials: true,
 }))
 
 // routes
-app.get('/', (req, res) => {
+app.get('/',requireAuth, (req, res) => {
   res.send('Hello World!')
 })
 app.use('/api/v1/users',users)

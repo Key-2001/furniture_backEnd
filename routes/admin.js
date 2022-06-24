@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+
 const {getAllAdmin,createAdmin,getSingleAdmin,updateAdmin,deleteAdmin,loginAdmin} = require('../controllers/admin')
 
 router.route('/').get(getAllAdmin).post(createAdmin);

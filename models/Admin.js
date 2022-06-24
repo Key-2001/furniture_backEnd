@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const {isEmail} = require('validator')
 const AdminSchema = new mongoose.Schema({
     userName: {
         type: String,
@@ -16,7 +16,8 @@ const AdminSchema = new mongoose.Schema({
         type: String,
         required: [true, 'email must provided'],
         trim: true,
-        maxlength: [30, 'email can not be more than 30 characters']
+        maxlength: [30, 'email can not be more than 30 characters'],
+        validate: [isEmail,'Pls enter a valid email!']
     }
 })
 
