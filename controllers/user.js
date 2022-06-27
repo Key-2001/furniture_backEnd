@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+const {requireAuth} =require('../middleware/authMiddleware')
 require('dotenv').config()
 
 
@@ -92,4 +94,57 @@ const loginUser = async (req,res) => {
         return res.status(500).json({errCode: 5,error})
     }
 }
-module.exports = {getAllUsers,createUser,getSingleUser,updateUser,deleteUser,loginUser}
+
+const sendMailUser = async (req,res) => {
+    const {email} = req.body;
+    try {
+        const token = jwt.sign({email},process.env.ACCESS_TOKEN_SECRET,{expiresIn:'1h'})
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: "smtp.ethereal.email",
+            port: 587,
+            secure: false,
+            auth: {
+            user: process.env.USER_EMAIL,
+            pass: process.env.PASSWORD_EMAIL
+            }
+        });
+        
+        let mailOptions = {
+            from: process.env.USER_EMAIL,
+            to: email,
+            subject: 'Reset your password!!',
+            html: `<b>You can reset your password<a href=${process.env.URL_CLIENT}${token}> here!</a></b>`
+        };
+        let user = await User.findOne({email: email}).exec();
+        if(!user){
+            return res.status(404).json({errCode:1,msg:'Email is not existed!'})
+        }
+        transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+            return res.status(400).json(error);
+            } else {
+            return res.status(200).json({'msg':info.response,'token':token});
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({error})
+    }
+    
+}
+
+const resetPassword = async (req,res) => {
+    // console.log(res.locals.token);
+    const {email} = res.locals.token;
+    const {password} = req.body;
+    console.log(password);
+    console.log(email);
+    try {
+        let user = await User.findOneAndUpdate({email: email},{password: password.length>5 ? bcrypt.hashSync(password, salt) : password})
+        return res.status(200).json({user})
+    } catch (error) {
+        return res.status(400).json(error)
+    }
+}
+
+module.exports = {getAllUsers,createUser,getSingleUser,updateUser,deleteUser,loginUser,sendMailUser,resetPassword}
