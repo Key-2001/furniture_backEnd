@@ -2,19 +2,12 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-const {requireAuth} =require('../middleware/authMiddleware')
 require('dotenv').config()
-
+const createToken = require('../middleware/createToken')
 
 const bcrypt = require('bcrypt');
 const salt = bcrypt.genSaltSync(10);
-// create token
-const maxAge = 30;
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: maxAge
-  });
-};
+
 
 const getAllUsers = async (req,res) => {
     try {
@@ -29,7 +22,7 @@ const getAllUsers = async (req,res) => {
 }
 const createUser =  async (req,res) => {
     const data = req.body;
-    console.log('auth',req.headers);
+    // console.log('auth',req.headers);
     try {
         const user = await User.create({...data,password:data.password.length>5 ? bcrypt.hashSync(data.password, salt) : data.password});
         return res.status(200).json(user);
@@ -137,14 +130,39 @@ const resetPassword = async (req,res) => {
     // console.log(res.locals.token);
     const {email} = res.locals.token;
     const {password} = req.body;
-    console.log(password);
-    console.log(email);
+    // console.log(password);
+    // console.log(email);
     try {
         let user = await User.findOneAndUpdate({email: email},{password: password.length>5 ? bcrypt.hashSync(password, salt) : password})
+        // if(user){
+        //     jwt.destroy(token);
+        // }
         return res.status(200).json({user})
     } catch (error) {
-        return res.status(400).json(error)
+        return res.status(500).json(error)
+    }
+}
+const loginWithToken = async(req,res) => {
+    // console.log(res.locals.token);
+    const {id:userID} = res.locals.token;
+    try {
+        const user = await User.findById(userID);
+        if(!user){
+            return res.status(404).json({errCode:1,msg:'User is not found!!!'})
+        }
+        return res.status(200).json({user})
+    } catch (error) {
+        return res.status(400).json({err})
     }
 }
 
-module.exports = {getAllUsers,createUser,getSingleUser,updateUser,deleteUser,loginUser,sendMailUser,resetPassword}
+const logoutUser = async(req,res) => {
+    const token = res.locals.tokenDestroy
+    try {
+        return res.status(200).json({msg:'LogoutSuccess!'})
+    } catch (error) {
+        return res.status(500).json({error})
+    }
+}
+
+module.exports = {getAllUsers,createUser,getSingleUser,updateUser,deleteUser,loginUser,sendMailUser,resetPassword,loginWithToken,logoutUser}

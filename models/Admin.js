@@ -6,6 +6,24 @@ const AdminSchema = new mongoose.Schema({
         required: [true, 'user name must provided'],
         trim: true,
     },
+    phoneNumber: {
+        type: String,
+        required: [true,'Phone number must provided'],
+        trim: true,
+        unique:[true,'phone number is exist'],
+        maxlength: [10,'phone number can not be more than10 characters']
+    },
+    name: {
+        type:String,
+        required: [true,'Name must provided!'],
+        trim: true,
+        maxlength: [30,'name can not more than 30 characters']
+    },
+    address: {
+        type: String,
+        trim: true,
+        default:''
+    },
     password: {
         type: String,
         required: [true, 'password must provided'],

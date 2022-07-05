@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Admin = require('../models/Admin');
 const bcrypt = require('bcrypt');
 const salt = bcrypt.genSaltSync(10);
+const createToken = require('../middleware/createToken')
 
 
 
@@ -42,19 +43,35 @@ const deleteAdmin = async (req,res) => {
 const loginAdmin = async (req,res) => {
     const data = req.body;
     try {
-        const admin = await Admin.findOne({userName: data.userName});
+        let admin = await Admin.findOne({userName: data.userName});
         const passwordAdmin = admin ? admin.password : '';
         const isCompare = await bcrypt.compare(data.password,passwordAdmin);
         if(!admin){
-            return res.status(200).json({errCode:1,msg:'User name không tồn tại!!!'})
+            return res.status(404).json({errCode:1,msg:'User is not exist!!!'})
         }
         if(!isCompare){
-            return res.status(200).json({errCode:2,msg:'Mật khẩu không chính xác!!!'})
+            return res.status(400).json({errCode:2,msg:'Password is not true!!!'})
         }
-        return res.status(200).json(admin)
+        const token = createToken(admin._id)
+        res.status(200).json({admin,accessToken:token})
     } catch (error) {
         return res.status(500).json(error)
     }
 }
 
-module.exports = {getAllAdmin,createAdmin,getSingleAdmin,updateAdmin,deleteAdmin,loginAdmin}
+const loginAdminToken = async (req,res) => {
+    const {id} = res.locals.token;
+    // console.log(id);
+    try {
+        const admin = await Admin.findById(id);
+        if(!admin){
+            return res.status(404).json({errCode:1,msg:'Admin account is not exist!'});
+        }
+        return res.status(200).json({admin})
+        return res.status(200).json({msg:'success'})
+    } catch (error) {
+        return res.status(500).json({error})
+    }
+}
+
+module.exports = {getAllAdmin,createAdmin,getSingleAdmin,updateAdmin,deleteAdmin,loginAdmin,loginAdminToken}
