@@ -10,11 +10,16 @@ const salt = bcrypt.genSaltSync(10);
 
 
 const getAllUsers = async (req,res) => {
+    const {name} = req.query;
     try {
-        const users = await User.find();
+        let users = await User.find();
         if(!users){
             return res.status(200).json({errCode:1,msg:'User is empty!!'})
         }
+        users = users.filter((el) => {
+            return el?.name?.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        });
+
         return res.status(200).json(users)
     } catch (error) {
         return res.status(500).json({errCode: 5,msg:"Error sever!!",error})
@@ -27,7 +32,11 @@ const createUser =  async (req,res) => {
         const user = await User.create({...data,password:data.password.length>5 ? bcrypt.hashSync(data.password, salt) : data.password});
         return res.status(200).json(user);
     } catch (error) {
-        return res.status(401).json({error})
+        if(error?.keyPattern?.phoneNumber === 1){
+            return res.status(401).json({errCode: 2, msg: "Your phone number is existed"})
+        }else{
+            return res.status(401).json({errCode: 2, msg: "Your email number is existed"})
+        }
     }
 }
 const getSingleUser = async (req,res) => {
@@ -46,7 +55,7 @@ const updateUser = async (req,res) => {
     const {id:userID} = req.params;
     const data = req.body;
     try {
-        const user = await User.findByIdAndUpdate(userID,data);
+        const user = await User.findByIdAndUpdate(userID,{...data,password: data.password.length>5 ? bcrypt.hashSync(data.password, salt) : data.password});
         if(!user){
             return res.status(200).json({errCode:1,msg:'user is not exist!!!'})
         }

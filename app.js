@@ -8,6 +8,7 @@ const port = process.env.PORT ||8080;
 const users = require('./routes/user');
 const admin = require('./routes/admin');
 const product = require('./routes/product')
+const test = require('./routes/test')
 const notFound = require('./middleware/not-found')
 const connectDB = require('./db/connect');
 const { requireAuth } = require('./middleware/authMiddleware');
@@ -15,10 +16,11 @@ const upload = require('./middleware/multer')
 const Image = require('./models/Image')
 const fs = require('fs')
 // middleware
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({extended: true}));
+app.use(express.static('public/photos'))
 app.use(express.json())
 app.use(cookieParser())
-app.use(express.static('public'))
+// app.use(express.static('public'))
 app.use(cors({
     origin:"*",
     credentials: true,
@@ -31,6 +33,7 @@ app.get('/',requireAuth, (req, res) => {
 app.use('/api/v1/users',users)
 app.use('/api/v1/admin',admin)
 app.use('/api/v1/products',product)
+app.use('/api/v1/test',test)
 
 
 

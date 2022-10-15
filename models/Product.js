@@ -3,7 +3,7 @@ const ProductSchema = new mongoose.Schema({
     name: {
         type: String,
         require: [true,'Name product must provided'],
-        trim: true,
+        // trim: true,
         unique: [true, 'Product is existed!']
     },
     price: {
@@ -11,16 +11,43 @@ const ProductSchema = new mongoose.Schema({
         required: [true,'Price product must provided'],
         trim: true,
     },
-    images:[{
-        filename: String,
-        urlImg: Buffer,
-        contentType:String
-    }],
-    colors:{
-        type: Array,
-        // required: [true,'Colors product must provided'],
-        default: ['#000','#fff']
+    images:[
+        String
+    ],
+    // stock:{
+    //     type: Number,
+    //     trim: true,
+    //     default: 0
+    // },
+    reviews: {
+        type: Number,
+        trim:true,
+        default: 0
     },
+    stars: {
+        type: Number,
+        trim: true,
+        default: 3,
+        max: [5,"Stars cann't be higher than 5"]
+    },
+    stock: [
+        {
+            amount: {
+                type: Number,
+                default: 0
+            },
+            color: {
+                type: String,
+                trim: true,
+                required: [true, "Stock required!"]
+            }
+        }
+    ],
+    // colors:{
+    //     type: Array,
+    //     // required: [true,'Colors product must provided'],
+    //     default: ['#000','#fff']
+    // },
     company:{
         type:String,
         required:[true,'Company product must provided'],
@@ -29,12 +56,11 @@ const ProductSchema = new mongoose.Schema({
     description:{
         type:String,
         required: [true,'Description product must provided'],
-        trim: true
+        // trim: true
     },
     category:{
         type:String,
         required: [true,'Category product must provided'],
-        trim: true
     },
     shipping:{
         type:Boolean,
