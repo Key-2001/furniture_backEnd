@@ -10,16 +10,16 @@ const requireAuth = (req, res, next) => {
     jwt.verify(token,process.env.ACCESS_TOKEN_SECRET, (err, decodedToken) => {
       if (err) {
         // console.log('err',err.message);
-        return res.status(400).json({errCode:1,msg:err.message})
+        return res.status(404).json({statusCode:404,msg:err.message})
         // res.redirect('/login');
       } else {
-        // console.log('dataToken',decodedToken);
+        // console.log("hoatlala",decodedToken);
         res.locals.token = decodedToken;
         next();
       }
     });
   } else {
-    return res.status(400).json({errCode:2,msg:'Session has expired!'})
+    return res.status(404).json({statusCode:404,msg:'Session has expired!'})
   }
 };
 

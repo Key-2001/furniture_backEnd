@@ -44,6 +44,9 @@ const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find();
     let listProduct = products;
+    // const responseCityData = await fetch('https://raw.githubusercontent.com/kenzouno1/DiaGioiHanhChinhVN/master/data.json');
+    // const data = await responseCityData.json();
+    // console.log("dataCity", data);
     if (name) {
       listProduct = listProduct.filter((el) => {
         return el?.name?.toLowerCase().indexOf(name.toLowerCase()) !== -1;

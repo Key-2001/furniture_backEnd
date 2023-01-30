@@ -42,6 +42,7 @@ const deleteAdmin = async (req,res) => {
 
 const loginAdmin = async (req,res) => {
     const data = req.body;
+    console.log("datatata",data);
     try {
         let admin = await Admin.findOne({userName: data.userName});
         const passwordAdmin = admin ? admin.password : '';
@@ -52,7 +53,8 @@ const loginAdmin = async (req,res) => {
         if(!isCompare){
             return res.status(400).json({errCode:2,msg:'Password is not true!!!'})
         }
-        const token = createToken(admin._id)
+        console.log("admin",JSON.stringify(admin._id));
+        const token = createToken(JSON.stringify(admin._id))
         res.status(200).json({admin,accessToken:token})
     } catch (error) {
         return res.status(500).json(error)
@@ -60,10 +62,10 @@ const loginAdmin = async (req,res) => {
 }
 
 const loginAdminToken = async (req,res) => {
-    const {id} = res.locals.token;
-    // console.log(id);
+    const {id: idAdmin} = res.locals.token;
+
     try {
-        const admin = await Admin.findById(id);
+        const admin = await Admin.findById(idAdmin);
         if(!admin){
             return res.status(404).json({errCode:1,msg:'Admin account is not exist!'});
         }
