@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const Image = require("../models/Image");
 const fs = require("fs");
+const _ = require("lodash")
 const getDirnameImg = require('../middleware/getDirnameImg')
 require("dotenv").config();
 
@@ -51,7 +52,6 @@ const getAllProducts = async (req, res) => {
       listProduct = listProduct.filter((el) => {
         return el?.name?.toLowerCase().indexOf(name.toLowerCase()) !== -1;
       });
-      console.log("name", listProduct);
     }
     if (category) {
       listProduct = listProduct.filter((el, index) => {
@@ -62,7 +62,6 @@ const getAllProducts = async (req, res) => {
       listProduct = listProduct.filter((el) => {
         return el?.company.toLowerCase().indexOf(company.toLowerCase()) !== -1;
       });
-      console.log("company", listProduct);
     }
     if (price) {
       listProduct = listProduct.filter((el) => {
@@ -162,7 +161,7 @@ const updateProduct = async (req, res) => {
   const stock = JSON.parse(req.body.stock);
   const data = { ...req.body, stock };
   const dirnameImg = getDirnameImg();
-
+  console.log("hoatlaData",data, imgProducts);
   try {
     const productCheck = await Product.findById(productId);
     if(!productCheck) {
@@ -174,13 +173,17 @@ const updateProduct = async (req, res) => {
       const imgs = imgProducts.map((item, index) => {
         return process.env.URL_BACKEND + item.filename;
       });
-      productCheck?.images.map((el) => {
+      const imgsUpdate = _.uniq(_.compact(productCheck?.images.concat(data?.products)));
+      _.difference(productCheck?.images,imgsUpdate).map((el) => {
         const path = el.split("/");
         return path[path.length - 1]
-      }).forEach((el) => {
+      })
+      .forEach((el) => {
         fs.unlinkSync(`${dirnameImg}${el}`)
       })
-      const productUpdated = await Product.findByIdAndUpdate(productId,{...data, images: imgs});
+      const dataUpdateImg = [].concat(data?.products);
+      console.log("hoatlaCheckBUg",imgsUpdate, imgs, dataUpdateImg);
+      const productUpdated = await Product.findByIdAndUpdate(productId,{...data, images: [...imgs, ...dataUpdateImg]});
       return res.status(200).json({ statusCode: 200, msg: "Success!", productUpdated });
 
     }

@@ -60,16 +60,34 @@ const OrderSchema = new mongoose.Schema({
             price: {
                 type: Number,
                 required: [true, 'price product is required!']
+            },
+            img: {
+                type: String,
+                required: [true, 'img is required!']
+            },
+            name: {
+                type: String,
+                required: [true, 'name product is required!']
             }
         }
     ],
-    discountCode: {
-        type: String,
-        default: ""
+    discount: {
+        discountCode: {
+            type: String,
+            default: ""
+        },
+        discountValue: {
+            type: Number,
+            default: 0
+        }
     },
     totalPrice: {
         type: Number,
         required: [true, 'total price order is required!']
+    },
+    totalPriceProduct: { // total price when un apply discount
+        type: Number,
+        required: [true, 'total price product is required!']
     },
     status: {
         type: String,

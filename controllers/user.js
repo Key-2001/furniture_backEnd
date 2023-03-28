@@ -11,7 +11,7 @@ const salt = bcrypt.genSaltSync(10);
 
 
 const getAllUsers = async (req,res) => {
-    const {name} = req.query;
+    const {name, phoneNumber, email} = req.query;
     try {
         let users = await User.find();
         if(!users){
@@ -20,7 +20,12 @@ const getAllUsers = async (req,res) => {
         users = users.filter((el) => {
             return el?.name?.toLowerCase().indexOf(name.toLowerCase()) !== -1
         });
-
+        users = users.filter((el) => {
+            return el?.phoneNumber?.indexOf(phoneNumber) !== -1
+        });
+        users = users.filter((el) => {
+            return el?.email?.toLowerCase().toLowerCase().indexOf(email.toLowerCase()) !== -1
+        });
         return res.status(200).json(users)
     } catch (error) {
         return res.status(500).json({errCode: 5,msg:"Error sever!!",error})
@@ -34,9 +39,9 @@ const createUser =  async (req,res) => {
         return res.status(200).json(user);
     } catch (error) {
         if(error?.keyPattern?.phoneNumber === 1){
-            return res.status(401).json({errCode: 2, msg: "Your phone number is existed"})
+            return res.status(400).json({errCode: 2, msg: "Your phone number is existed"})
         }else{
-            return res.status(401).json({errCode: 2, msg: "Your email number is existed"})
+            return res.status(400).json({errCode: 2, msg: "Your email number is existed"})
         }
     }
 }

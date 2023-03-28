@@ -42,9 +42,8 @@ const deleteAdmin = async (req,res) => {
 
 const loginAdmin = async (req,res) => {
     const data = req.body;
-    console.log("datatata",data);
     try {
-        let admin = await Admin.findOne({userName: data.userName});
+        const admin = await Admin.findOne({userName: data.userName});
         const passwordAdmin = admin ? admin.password : '';
         const isCompare = await bcrypt.compare(data.password,passwordAdmin);
         if(!admin){
@@ -53,7 +52,6 @@ const loginAdmin = async (req,res) => {
         if(!isCompare){
             return res.status(400).json({errCode:2,msg:'Password is not true!!!'})
         }
-        console.log("admin",JSON.stringify(admin._id));
         const token = createToken(JSON.stringify(admin._id))
         res.status(200).json({admin,accessToken:token})
     } catch (error) {
@@ -63,7 +61,7 @@ const loginAdmin = async (req,res) => {
 
 const loginAdminToken = async (req,res) => {
     const {id: idAdmin} = res.locals.token;
-
+    
     try {
         const admin = await Admin.findById(idAdmin);
         if(!admin){

@@ -1,12 +1,23 @@
 const mongoose = require('mongoose');
 const OrderSchema = require('../models/Order');
+const ProductSchema = require('../models/Product')
 const User = require('../models/User');
 const Product = require('../models/Product');
 
 const getAllOrder = async (req,res) => {
+    const {name, email, phoneNumber} = req.query;
     try {
-        const orderList = await OrderSchema.find();
-        return res.status(200).json({msg: 'success!',orderList})
+        let orderList = await OrderSchema.find();
+        orderList = orderList?.filter((el) => {
+            return el?.name?.toLowerCase().indexOf(name?.toLowerCase()) !== -1;
+        })
+        orderList = orderList?.filter((el) => {
+            return el?.email?.toLowerCase().indexOf(email?.toLowerCase()) !== -1;
+        })
+        orderList = orderList?.filter((el) => {
+            return el?.phoneNumber?.indexOf(phoneNumber) !== -1
+        })
+        return res.status(200).json({msg: 'success!',orderList});
     } catch (error) {
         return res.status(500).json({error});
     }
@@ -14,9 +25,10 @@ const getAllOrder = async (req,res) => {
 
 const createOrder = async (req,res) => {
     const data = req.body;
-    const products = data.products.map(el => JSON.parse(el));
+    const products = (data?.products || []).map(el => JSON.parse(el));
     const paymentType = JSON.parse(data?.paymentType);
-    const dataOrder = {...data, products, paymentType}
+    const discount = JSON.parse(data?.discount)
+    const dataOrder = {...data, products, paymentType, discount}
     try {
         const order = await OrderSchema.create(dataOrder)
         return res.status(200).json({statusCode: 200, msg: "Success!", order})
@@ -29,10 +41,10 @@ const getOrderByIdUser = async (req,res) => {
     const {id} = req.params;
      try {
         const order = await OrderSchema.find({idUser: id});
-        if(order.length === 0){
-            return res.status(400).json({statusCode: 400, msg: 'Order is not existed!!!'});
-        }
-        return res.status(200).json({statusCode: 200, msg: "Success!!"})
+        // if(order.length === 0){
+        //     return res.status(400).json({statusCode: 200, msg: 'Order is not existed!!!'});
+        // }
+        return res.status(200).json({statusCode: 200, msg: "Success!!", orderData: order})
 
     } catch (error) {
         return res.status(500).json({error})
@@ -42,7 +54,8 @@ const getOrderByIdUser = async (req,res) => {
 const getOrderById = async (req, res) => {
     const {idOrder} = req.params;
     try {
-        const order = await OrderSchema.findById(IdOrder);
+        const order = await OrderSchema.findById(idOrder);
+        console.log("bsjhjadjk",order);
         if(!order){
             return res.status(400).json({statusCode: 400, msg: 'Order is not existed!!!'});
         }
