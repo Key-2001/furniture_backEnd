@@ -33,7 +33,6 @@ const getAllUsers = async (req,res) => {
 }
 const createUser =  async (req,res) => {
     const data = req.body;
-    // console.log('auth',req.headers);
     try {
         const user = await User.create({...data,password:data.password.length>5 ? bcrypt.hashSync(data.password, salt) : data.password});
         return res.status(200).json(user);
@@ -107,23 +106,6 @@ const sendMailUser = async (req,res) => {
     const {email} = req.body;
     try {
         const token = jwt.sign({email},process.env.ACCESS_TOKEN_SECRET,{expiresIn:'1h'})
-        // let transporter = nodemailer.createTransport({
-        //     service: 'gmail',
-        //     host: "smtp.ethereal.email",
-        //     port: 587,
-        //     secure: false,
-        //     auth: {
-        //     user: process.env.USER_EMAIL,
-        //     pass: process.env.PASSWORD_EMAIL
-        //     }
-        // });
-        
-        // let mailOptions = {
-        //     from: process.env.USER_EMAIL,
-        //     to: email,
-        //     subject: 'Reset your password!!',
-        //     html: `<b>You can reset your password<a href=${process.env.URL_CLIENT}${token}> here!</a></b>`
-        // };
         let user = await User.findOne({email: email}).exec();
         if(!user){
             return res.status(404).json({errCode:1,msg:'Email is not existed!'})

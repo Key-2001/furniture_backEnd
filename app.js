@@ -13,6 +13,8 @@ const order = require('./routes/order');
 const discount = require('./routes/discount');
 const city = require('./routes/cityVietNam');
 const addressPersonal = require('./routes/addressPersonal')
+const dashboard = require('./routes/dashboard');
+const statistic = require('./routes/statistic');
 const test = require('./routes/test');
 const vnPay =  require('./routes/vnPay');
 
@@ -47,6 +49,8 @@ app.use('/api/v1/order',order)
 app.use('/api/v1/test',test)
 app.use('/api/v1/city',city);
 app.use('/api/v1/discount',discount);
+app.use('/api/v1/statistic',statistic);
+app.use('/api/v1/dashboard', dashboard);
 app.use('/api/v1/address-personal',addressPersonal)
 app.use('/api/v1/vnPay',vnPay);
 
