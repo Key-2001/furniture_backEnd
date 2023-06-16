@@ -93,9 +93,10 @@ const deleteOrder = async (req,res) => {
 }
 
 const updateStatusOrder = async (req, res) => {
+    const {id} = req.body;
     const data = req.body;
     try {
-        const orderUpdated = await OrderSchema.findByIdAndUpdate(data?.id, {status: data?.status});
+        const orderUpdated = await OrderSchema.findByIdAndUpdate(id, {status: data?.status, paymentStatus: data?.paymentStatus});
         if(!orderUpdated){
             return res.status(400).json({statusCode: 400, msg: 'Order not founded!!!'});
         }
