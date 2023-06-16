@@ -8,7 +8,7 @@ const upload = multer()
 
 router.route('/').get(getAllOrder).post(upload.none(), createOrder);
 router.route('/:id').get(getOrderByIdUser).patch(editOrder).delete(deleteOrder);
-router.route('/status').patch(updateStatusOrder);
+router.route('/status/:id').patch(updateStatusOrder);
 router.route('/:idOrder/order').get(getOrderById);
 
 module.exports = router;
