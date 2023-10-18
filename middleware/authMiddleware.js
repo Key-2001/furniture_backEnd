@@ -1,16 +1,18 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const requireAuth = (req, res, next) => {
-  const authorizationHeader = req.headers['authentication']
+  const authorizationHeader = req.headers["authorization"];
   // console.log('author',authorizationHeader);
-  const token = authorizationHeader.split(' ')[1];
+  const token = authorizationHeader.split(" ")[1];
   res.locals.tokenDestroy = token;
   if (token) {
-    jwt.verify(token,process.env.ACCESS_TOKEN_SECRET, (err, decodedToken) => {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decodedToken) => {
       if (err) {
         // console.log('err',err.message);
-        return res.status(404).json({statusCode:404,msg:err.message})
+        return res
+          .status(404)
+          .json({ statusCode: 404, success: false, message: err.message });
         // res.redirect('/login');
       } else {
         // console.log("hoatlala",decodedToken);
@@ -19,7 +21,13 @@ const requireAuth = (req, res, next) => {
       }
     });
   } else {
-    return res.status(404).json({statusCode:404,msg:'Session has expired!'})
+    return res
+      .status(404)
+      .json({
+        statusCode: 404,
+        success: false,
+        message: "Session has expired!",
+      });
   }
 };
 

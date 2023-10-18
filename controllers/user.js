@@ -108,17 +108,29 @@ const loginUser = async (req, res) => {
     let user = await User.findOne({ phoneNumber: data.phoneNumber }).exec();
 
     if (!user) {
-      return res.status(401).json({ success: false, message: "User is not existed!" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Phone number is not existed!" });
     }
     if (!bcrypt.compareSync(data.password, user.password)) {
-      return res.status(401).json({ success: false, message: "Password is not true!" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Password is not true!" });
     }
 
     const token = createToken(user._id);
     // console.log('token',token);
-    return res.status(200).json({ success: true, user, accessToken: token, message: 'Welcome back 🎉🎉🎉!!!' });
+    const { password, ...rest } = user._doc;
+    return res.status(200).json({
+      success: true,
+      user: { ...rest },
+      accessToken: token,
+      message: "Welcome back 🎉🎉🎉!!!",
+    });
   } catch (error) {
-    return res.status(500).json({ success: false, message: 'Something went wrong!' });
+    return res
+      .status(500)
+      .json({ success: false, message: "Something went wrong!" });
   }
 };
 
@@ -205,41 +217,47 @@ const editUser = async (req, res) => {
       address: address,
     });
     if (!user) {
-      return res
-        .status(404)
-        .json({ statusCode: 404, msg: "User is not found!!!" });
+      return res.status(404).json({
+        statusCode: 404,
+        message: "User is not found!!!",
+        success: false,
+      });
     }
     const userUpdated = await User.findById(userID);
-    return res
-      .status(200)
-      .json({ statusCode: 200, msg: "Updated successful!", data: userUpdated });
+    const { password, ...rest } = userUpdated._doc;
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Updated successful!",
+      user: { ...rest },
+      success: true,
+    });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong" });
   }
 };
 
 const changePassword = async (req, res) => {
   const { id: userID } = res.locals.token;
-  const { oldPassword, newPassword } = req.body;
+  const { newPassword } = req.body;
   try {
     if (newPassword.length < 6) {
-      return res
-        .status(400)
-        .json({
-          statusCode: 400,
-          msg: "Password must more than 6 characters!",
-        });
+      return res.status(400).json({
+        statusCode: 400,
+        success: false,
+        message: "Password must more than 6 characters!",
+      });
     }
     const user = await User.findById(userID);
     if (!user) {
       return res
         .status(404)
-        .json({ statusCode: 404, msg: "User is not found!!!" });
-    }
-    if (!bcrypt.compareSync(oldPassword, user.password)) {
-      return res
-        .status(401)
-        .json({ statusCode: 401, msg: "Password is not true!" });
+        .json({
+          statusCode: 404,
+          message: false,
+          message: "User is not found!!!",
+        });
     }
     await User.findByIdAndUpdate(userID, {
       password:
@@ -249,9 +267,36 @@ const changePassword = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ statusCode: 200, msg: "Update password user successful!" });
+      .json({
+        statusCode: 200,
+        success: true,
+        message: "Update password user successful!",
+      });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong" });
+  }
+};
+
+const getProfileUser = async (req, res) => {
+  const { id: userID } = res.locals.token;
+  console.log("jsnakjds", userID);
+  try {
+    const user = await User.findById(userID);
+    if (!user) {
+      return res
+        .status(200)
+        .json({ success: false, message: "user is not exist!!!" });
+    }
+    const { password, ...rest } = user._doc;
+    return res
+      .status(200)
+      .json({ success: true, user: { ...rest }, message: "Success!" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Something went wrong", error });
   }
 };
 
@@ -268,4 +313,5 @@ module.exports = {
   logoutUser,
   editUser,
   changePassword,
+  getProfileUser,
 };
