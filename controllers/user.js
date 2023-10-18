@@ -142,7 +142,9 @@ const sendMailUser = async (req, res) => {
     });
     let user = await User.findOne({ email: email }).exec();
     if (!user) {
-      return res.status(404).json({ errCode: 1, msg: "Email is not existed!" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Email is not existed!" });
     }
     await sendMail({
       template: "forgotPassword",
@@ -157,9 +159,16 @@ const sendMailUser = async (req, res) => {
     //     return res.status(200).json({'msg':info.response,'token':token});
     //     }
     // });
-    return res.status(200).json({ statusCode: 200, msg: "Success!!!" });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Successfully _ Pls check your EMAIL!!!",
+      });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong" });
   }
 };
 
@@ -251,13 +260,11 @@ const changePassword = async (req, res) => {
     }
     const user = await User.findById(userID);
     if (!user) {
-      return res
-        .status(404)
-        .json({
-          statusCode: 404,
-          message: false,
-          message: "User is not found!!!",
-        });
+      return res.status(404).json({
+        statusCode: 404,
+        message: false,
+        message: "User is not found!!!",
+      });
     }
     await User.findByIdAndUpdate(userID, {
       password:
@@ -265,13 +272,11 @@ const changePassword = async (req, res) => {
           ? bcrypt.hashSync(newPassword, salt)
           : newPassword,
     });
-    return res
-      .status(200)
-      .json({
-        statusCode: 200,
-        success: true,
-        message: "Update password user successful!",
-      });
+    return res.status(200).json({
+      statusCode: 200,
+      success: true,
+      message: "Update password user successful!",
+    });
   } catch (error) {
     return res
       .status(500)
