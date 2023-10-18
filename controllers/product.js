@@ -88,7 +88,7 @@ const getAllProducts = async (req, res) => {
     if (listProduct.length === 0) {
       return res
         .status(200)
-        .json({ statusCode: 204, msg: "Do not have products!!!" });
+        .json({ statusCode: 204, msg: "Do not have products!!!", products: [] });
     }
 
     if (sort === "priceLowest") {
