@@ -45,13 +45,11 @@ const createDiscountEmail = async (req, res) => {
   const { email } = data;
   try {
     if (!data?.email) {
-      return res
-        .status(200)
-        .json({
-          statusCode: 200,
-          message: "Email is not empty!",
-          success: false,
-        });
+      return res.status(200).json({
+        statusCode: 200,
+        message: "Email is not empty!",
+        success: false,
+      });
     }
     const discountCheck = await DiscountSchema.find({ email: email });
     if (discountCheck.length !== 0) {
@@ -103,14 +101,12 @@ const createDiscountEmail = async (req, res) => {
       email: email,
     });
 
-    return res
-      .status(200)
-      .json({
-        statusCode: 200,
-        message: "Success!",
-        data: result,
-        success: true,
-      });
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Success!",
+      data: result,
+      success: true,
+    });
   } catch (error) {
     return res
       .status(500)
@@ -137,10 +133,35 @@ const getDiscountWithCode = async (req, res) => {
   }
 };
 
+const checkDiscountCode = async (req, res) => {
+  const { discountCode } = req.body;
+  try {
+    const discount = await DiscountSchema.findOne({ idDiscount: discountCode });
+    if (!discount) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Discount is not existed!" });
+    }
+    if (discount.amountUse === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Discount code has expired" });
+    }
+    return res
+      .status(200)
+      .json({ success: true, message: "Apply discount code success!", discount: discount });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong" });
+  }
+};
+
 module.exports = {
   getAllDiscount,
   getDiscountId,
   createDiscount,
   createDiscountEmail,
   getDiscountWithCode,
+  checkDiscountCode,
 };
