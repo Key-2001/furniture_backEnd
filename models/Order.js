@@ -35,15 +35,8 @@ const OrderSchema = new mongoose.Schema({
         default: ""
     },
     paymentType: {
-        paymentTypeDetail: {
-            type: String,
-            required: [true, 'required!'],
-            trim: true
-        },
-        numberBank:{
-            type: String,
-            default: ""
-        }
+        type: String,
+        default: "COD"
     },
     products: [
         {
@@ -89,7 +82,7 @@ const OrderSchema = new mongoose.Schema({
         type: Number,
         required: [true, 'total price order is required!']
     },
-    totalPriceProduct: { // total price when un apply discount
+    totalCurrentPrice: { // total price when apply discount
         type: Number,
         required: [true, 'total price product is required!']
     },

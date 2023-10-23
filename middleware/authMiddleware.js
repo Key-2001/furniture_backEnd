@@ -15,7 +15,6 @@ const requireAuth = (req, res, next) => {
           .json({ statusCode: 404, success: false, message: err.message });
         // res.redirect('/login');
       } else {
-        // console.log("hoatlala",decodedToken);
         res.locals.token = decodedToken;
         next();
       }
