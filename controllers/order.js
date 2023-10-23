@@ -94,18 +94,17 @@ const createOrder = async (req, res) => {
   }
 };
 
-const getOrderByIdUser = async (req, res) => {
+const getOrderDetail = async (req, res) => {
   const { id } = req.params;
   try {
-    const order = await OrderSchema.find({ idUser: id });
-    // if(order.length === 0){
-    //     return res.status(400).json({statusCode: 200, msg: 'Order is not existed!!!'});
-    // }
+    const order = await OrderSchema.findById(id);
     return res
       .status(200)
-      .json({ statusCode: 200, msg: "Success!!", orderData: order });
+      .json({ success: true, message: "Success!", data: order });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
   }
 };
 
@@ -190,9 +189,9 @@ const updateStatusOrder = async (req, res) => {
 module.exports = {
   getAllOrder,
   createOrder,
-  getOrderByIdUser,
   editOrder,
   deleteOrder,
   updateStatusOrder,
   getOrderById,
+  getOrderDetail
 };

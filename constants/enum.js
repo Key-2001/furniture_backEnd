@@ -1,32 +1,32 @@
 export const enumStatus = [
-    {
-        value: '01',
-        label: 'Chờ xác nhận'
-    },
-    {
-        value: '02',
-        label: 'Chuẩn bị hàng'
-    },
-    {
-        value: '03',
-        label: 'Đang giao'
-    },
-    {
-        value: '04',
-        label: 'Hoàn thành đơn hàng'
-    },
-    {
-        value: '05',
-        label: 'Đơn hàng bị huỷ'
-    }
-]
+  {
+    value: "01",
+    label: "Pending",
+  },
+  {
+    value: "02",
+    label: "Preparing",
+  },
+  {
+    value: "03",
+    label: "Delivering",
+  },
+  {
+    value: "04",
+    label: "Completed",
+  },
+  {
+    value: "05",
+    label: "Cancel",
+  },
+];
 export const enumPaymentStatus = [
-    {
-        value: '01',
-        label: 'Chưa thanh toán'
-    },
-    {
-        value: '02',
-        label: 'Đã thanh toán'
-    }
-]
+  {
+    value: "01",
+    label: "Chưa thanh toán",
+  },
+  {
+    value: "02",
+    label: "Đã thanh toán",
+  },
+];
