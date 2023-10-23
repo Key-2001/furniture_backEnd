@@ -6,7 +6,7 @@ const {getAllOrder, createOrder, getOrderByIdUser, deleteOrder, editOrder,
 const multer = require('multer');
 const upload = multer()
 
-router.route('/').get(getAllOrder).post(upload.none(), createOrder);
+router.route('/').get(requireAuth,getAllOrder).post(upload.none(), requireAuth, createOrder);
 router.route('/:id').get(getOrderByIdUser).patch(editOrder).delete(deleteOrder);
 router.route('/status/:id').patch(updateStatusOrder);
 router.route('/:idOrder/order').get(getOrderById);
