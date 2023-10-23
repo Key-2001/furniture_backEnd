@@ -74,9 +74,13 @@ const OrderSchema = new mongoose.Schema({
             default: ""
         },
         discountValue: {
-            type: Number,
+            type: String,
             default: 0
         }
+    },
+    totalDiscount: {
+        type: Number,
+        default: 0
     },
     totalPrice: {
         type: Number,
