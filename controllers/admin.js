@@ -5,6 +5,7 @@ const salt = bcrypt.genSaltSync(10);
 const createToken = require("../middleware/createToken");
 const Product = require("../models/Product");
 const User = require("../models/User");
+const Order = require("../models/Order");
 
 const getAllAdmin = async (req, res) => {
   try {
@@ -139,6 +140,38 @@ const getUserAdmin = async (req, res) => {
   }
 };
 
+const getOrderAdmin = async (req, res) => {
+  const perPage = req.query.perPage || 10;
+  const page = req.query.page || 1;
+  const email = req.query.email || "";
+  const phoneNumber = req.query.phoneNumber || "";
+  try {
+    const orders = await Order.find({
+      email: { $regex: email },
+      phoneNumber: { $regex: phoneNumber },
+    })
+      .skip(perPage * page - perPage)
+      .limit(perPage);
+    const count = await Order.find({
+      email: { $regex: email },
+      phoneNumber: { $regex: phoneNumber },
+    }).count();
+    return res.status(200).json({
+      success: true,
+      message: "Success",
+      data: orders,
+      page: {
+        totalPage: Math.ceil(count / Number(perPage)),
+        currentPage: page,
+      },
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong" });
+  }
+};
+
 module.exports = {
   getAllAdmin,
   createAdmin,
@@ -149,4 +182,5 @@ module.exports = {
   loginAdminToken,
   getProductAdmin,
   getUserAdmin,
+  getOrderAdmin,
 };

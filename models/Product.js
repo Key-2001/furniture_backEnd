@@ -19,17 +19,17 @@ const ProductSchema = new mongoose.Schema({
     //     trim: true,
     //     default: 0
     // },
-    reviews: {
-        type: Number,
-        trim:true,
-        default: 0
-    },
-    stars: {
-        type: Number,
-        trim: true,
-        default: 3,
-        max: [5,"Stars cann't be higher than 5"]
-    },
+    // reviews: {
+    //     type: Number,
+    //     trim:true,
+    //     default: 0
+    // },
+    // stars: {
+    //     type: Number,
+    //     trim: true,
+    //     default: 3,
+    //     max: [5,"Stars cann't be higher than 5"]
+    // },
     stock: [
         {
             amount: {
@@ -62,10 +62,10 @@ const ProductSchema = new mongoose.Schema({
         type:String,
         required: [true,'Category product must provided'],
     },
-    shipping:{
-        type:Boolean,
-        default: false
-    }
+    // shipping:{
+    //     type:Boolean,
+    //     default: false
+    // }
 })
 
 module.exports = mongoose.model('Product',ProductSchema)
