@@ -172,6 +172,19 @@ const getOrderAdmin = async (req, res) => {
   }
 };
 
+const getOrderAdminDetail = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const order = await Order.findById(id);
+    return res
+      .status(200)
+      .json({ success: true, message: "Success!", data: order });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
+  }
+};
 module.exports = {
   getAllAdmin,
   createAdmin,
@@ -183,4 +196,5 @@ module.exports = {
   getProductAdmin,
   getUserAdmin,
   getOrderAdmin,
+  getOrderAdminDetail,
 };

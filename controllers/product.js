@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 const Product = require("../models/Product");
 const Image = require("../models/Image");
 const fs = require("fs");
-const _ = require("lodash")
-const getDirnameImg = require('../middleware/getDirnameImg')
+const _ = require("lodash");
+const getDirnameImg = require("../middleware/getDirnameImg");
 require("dotenv").config();
 
 const getImage = async (req, res) => {
@@ -23,20 +23,26 @@ const getImage = async (req, res) => {
 };
 
 const createProduct = async (req, res) => {
-  const imgProducts = req.files;
-  const stock = JSON.parse(req.body.stock);
-  const data = { ...req.body, stock };
+  const data = req.body;
   try {
-    const imgs = imgProducts.map((item, index) => {
-      return process.env.URL_BACKEND + item.filename;
+    const product = await Product.create({
+      ...data,
+      images: JSON.parse(data.images),
+      stock: JSON.parse(data.stock),
     });
-
-    const product = await Product.create({ ...data, images: imgs });
-    return res.status(200).json({ msg: "success", product });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Create product success🎉!",
+        data: product,
+      });
     // return res.status(200).json({msg:'success'})
   } catch (error) {
     console.log("error", error);
-    return res.status(500).json({ error });
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
   }
 };
 
@@ -86,9 +92,11 @@ const getAllProducts = async (req, res) => {
       console.log("color", listProduct);
     }
     if (listProduct.length === 0) {
-      return res
-        .status(200)
-        .json({ statusCode: 204, msg: "Do not have products!!!", products: [] });
+      return res.status(200).json({
+        statusCode: 204,
+        msg: "Do not have products!!!",
+        products: [],
+      });
     }
 
     if (sort === "priceLowest") {
@@ -134,20 +142,19 @@ const deleteProduct = async (req, res) => {
   const dirnameImg = getDirnameImg();
   try {
     const productData = await Product.findByIdAndRemove(id);
-    console.log(productData,"productData");
+    console.log(productData, "productData");
     const imgPaths = productData?.images.map((el) => {
-        const path = el.split("/");
-        return path[path.length - 1]
+      const path = el.split("/");
+      return path[path.length - 1];
     });
-    console.log("imgPaths",imgPaths, dirnameImg);
     if (!productData) {
       return res.status(404).json({ errCode: 1, msg: "Product is not exist!" });
     }
-    if(imgPaths) {
+    if (imgPaths) {
       imgPaths?.forEach((el) => {
         fs.unlinkSync(`${dirnameImg}${el}`);
         console.log(`${dirnameImg}${el}`);
-      })
+      });
     }
     return res.status(200).json({ msg: "Delete successful!", productData });
   } catch (error) {
@@ -161,37 +168,56 @@ const updateProduct = async (req, res) => {
   const stock = JSON.parse(req.body.stock);
   const data = { ...req.body, stock };
   const dirnameImg = getDirnameImg();
-  console.log("hoatlaData",data, imgProducts);
+  console.log("hoatlaData", data, imgProducts);
   try {
     const productCheck = await Product.findById(productId);
-    if(!productCheck) {
+    if (!productCheck) {
       return res
         .status(200)
         .json({ statusCode: 404, msg: "Product is not existed!!!" });
-    }
-    else{
+    } else {
       const imgs = imgProducts.map((item, index) => {
         return process.env.URL_BACKEND + item.filename;
       });
-      const imgsUpdate = _.uniq(_.compact(productCheck?.images.concat(data?.products)));
-      _.difference(productCheck?.images,imgsUpdate).map((el) => {
-        const path = el.split("/");
-        return path[path.length - 1]
-      })
-      .forEach((el) => {
-        fs.unlinkSync(`${dirnameImg}${el}`)
-      })
+      const imgsUpdate = _.uniq(
+        _.compact(productCheck?.images.concat(data?.products))
+      );
+      _.difference(productCheck?.images, imgsUpdate)
+        .map((el) => {
+          const path = el.split("/");
+          return path[path.length - 1];
+        })
+        .forEach((el) => {
+          fs.unlinkSync(`${dirnameImg}${el}`);
+        });
       const dataUpdateImg = [].concat(data?.products);
-      console.log("hoatlaCheckBUg",imgsUpdate, imgs, dataUpdateImg);
-      const productUpdated = await Product.findByIdAndUpdate(productId,{...data, images: [...imgs, ...dataUpdateImg]});
-      return res.status(200).json({ statusCode: 200, msg: "Success!", productUpdated });
-
+      console.log("hoatlaCheckBUg", imgsUpdate, imgs, dataUpdateImg);
+      const productUpdated = await Product.findByIdAndUpdate(productId, {
+        ...data,
+        images: [...imgs, ...dataUpdateImg],
+      });
+      return res
+        .status(200)
+        .json({ statusCode: 200, msg: "Success!", productUpdated });
     }
   } catch (error) {
     return res.status(500).json({ statusCode: 500, error });
   }
 };
 
+const deleteMultiProduct = async (req, res) => {
+  const { ids } = req.query;
+  try {
+    await Product.remove({_id: {$in:[...ids]}})
+    return res
+      .status(200)
+      .json({ success: true, message: "Remove successfully!" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
+  }
+};
 module.exports = {
   getImage,
   createProduct,
@@ -199,4 +225,5 @@ module.exports = {
   getSingleProduct,
   deleteProduct,
   updateProduct,
+  deleteMultiProduct
 };

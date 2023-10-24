@@ -1,12 +1,29 @@
-const express = require('express');
-const store = require('../middleware/multer')
-const { route } = require('./user');
+const express = require("express");
+const multer = require("multer");
+const store = require("../middleware/multer");
+const { route } = require("./user");
 const router = express.Router();
-const {createProduct,getImage,getAllProducts,getSingleProduct,deleteProduct, updateProduct} = require('../controllers/product')
+const upload = multer();
 
-router.route('/').get(getAllProducts)
-router.route('/create').post(store.array('products',5), createProduct);
-router.route('/:id').get(getSingleProduct).delete(deleteProduct).post(store.array('products',5),updateProduct);
-router.route('/image/:id/:subID').get(getImage)
+const {
+  createProduct,
+  getImage,
+  getAllProducts,
+  getSingleProduct,
+  deleteProduct,
+  updateProduct,
+  deleteMultiProduct
+} = require("../controllers/product");
+const { requireAuth } = require("../middleware/authMiddleware");
 
-module.exports = router
+router.route("/").get(getAllProducts);
+router.route("/create").post(upload.none(), requireAuth, createProduct);
+router.route("/multiple").delete(requireAuth, deleteMultiProduct)
+router
+  .route("/:id")
+  .get(getSingleProduct)
+  .delete(deleteProduct)
+  .post(store.array("products", 5), updateProduct);
+router.route("/image/:id/:subID").get(getImage);
+
+module.exports = router;
