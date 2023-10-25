@@ -7,7 +7,6 @@ const upload = multer();
 
 const {
   createProduct,
-  getImage,
   getAllProducts,
   getSingleProduct,
   deleteProduct,
@@ -22,8 +21,7 @@ router.route("/multiple").delete(requireAuth, deleteMultiProduct)
 router
   .route("/:id")
   .get(getSingleProduct)
+  .patch(upload.none(), requireAuth, updateProduct)
   .delete(deleteProduct)
-  .post(store.array("products", 5), updateProduct);
-router.route("/image/:id/:subID").get(getImage);
 
 module.exports = router;
