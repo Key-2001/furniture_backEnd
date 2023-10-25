@@ -4,7 +4,7 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     require: [true, "Name product must provided"],
     // trim: true,
-    unique: [true, "Product is existed!"],
+    // unique: [true, "Product is existed!"],
   },
   price: {
     type: Number,

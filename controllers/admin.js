@@ -7,18 +7,6 @@ const Product = require("../models/Product");
 const User = require("../models/User");
 const Order = require("../models/Order");
 
-const getAllAdmin = async (req, res) => {
-  try {
-    const admins = await Admin.find();
-    if (admins.length === 0) {
-      return res.status(200).json({ errCode: 1, msg: "Admins is empty" });
-    }
-    return res.status(200).json(admins);
-  } catch (error) {
-    return res.status(500).json(error);
-  }
-};
-
 const createAdmin = async (req, res) => {
   try {
     const data = req.body;
@@ -34,13 +22,6 @@ const createAdmin = async (req, res) => {
     return res.status(500).json(error);
   }
 };
-
-const getSingleAdmin = async (req, res) => {};
-
-const updateAdmin = async (req, res) => {};
-
-const deleteAdmin = async (req, res) => {};
-
 const loginAdmin = async (req, res) => {
   const data = req.body;
   try {
@@ -71,30 +52,14 @@ const loginAdmin = async (req, res) => {
       .json({ error, success: false, message: "Something went wrong!" });
   }
 };
-
-const loginAdminToken = async (req, res) => {
-  const { id: idAdmin } = res.locals.token;
-
-  try {
-    const admin = await Admin.findById(idAdmin);
-    if (!admin) {
-      return res
-        .status(404)
-        .json({ errCode: 1, msg: "Admin account is not exist!" });
-    }
-    return res.status(200).json({ admin });
-    return res.status(200).json({ msg: "success" });
-  } catch (error) {
-    return res.status(500).json({ error });
-  }
-};
-
 const getProductAdmin = async (req, res) => {
   const perPage = req.query.perPage || 10;
   const page = req.query.page || 1;
   const query = req.query.name || "";
   try {
-    const products = await Product.find({ name: { $regex: query } })
+    const products = await Product.find({
+      name: { $regex: new RegExp(query, "i") },
+    })
       .skip(perPage * page - perPage)
       .limit(perPage);
     const count = await Product.find({ name: { $regex: query } }).count();
@@ -150,6 +115,7 @@ const getOrderAdmin = async (req, res) => {
       email: { $regex: email },
       phoneNumber: { $regex: phoneNumber },
     })
+      .sort({ createdDate: -1 })
       .skip(perPage * page - perPage)
       .limit(perPage);
     const count = await Order.find({
@@ -185,16 +151,27 @@ const getOrderAdminDetail = async (req, res) => {
       .json({ error, success: false, message: "Something went wrong!" });
   }
 };
+
+const updateOrderAdmin = async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+  try {
+    await Order.findByIdAndUpdate(id, data);
+    return res
+      .status(200)
+      .json({ success: true, message: "Update Successfully!" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Something went wrong!", error });
+  }
+};
 module.exports = {
-  getAllAdmin,
   createAdmin,
-  getSingleAdmin,
-  updateAdmin,
-  deleteAdmin,
   loginAdmin,
-  loginAdminToken,
   getProductAdmin,
   getUserAdmin,
   getOrderAdmin,
   getOrderAdminDetail,
+  updateOrderAdmin,
 };

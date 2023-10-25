@@ -119,7 +119,6 @@ const loginUser = async (req, res) => {
     }
 
     const token = createToken(user._id);
-    // console.log('token',token);
     const { password, ...rest } = user._doc;
     return res.status(200).json({
       success: true,
@@ -152,13 +151,6 @@ const sendMailUser = async (req, res) => {
       subject: "Reset Password!!!",
       templateVars: { urlWeb: `${process.env.URL_CLIENT_RESET_PASS}${token}` },
     });
-    // transporter.sendMail(mailOptions, function(error, info){
-    //     if (error) {
-    //     return res.status(500).json(error);
-    //     } else {
-    //     return res.status(200).json({'msg':info.response,'token':token});
-    //     }
-    // });
     return res
       .status(200)
       .json({
@@ -173,11 +165,8 @@ const sendMailUser = async (req, res) => {
 };
 
 const resetPassword = async (req, res) => {
-  // console.log(res.locals.token);
   const { email } = res.locals.token;
   const { password } = req.body;
-  // console.log(password);
-  // console.log(email);
   try {
     let user = await User.findOneAndUpdate(
       { email: email },
@@ -186,36 +175,12 @@ const resetPassword = async (req, res) => {
           password.length > 5 ? bcrypt.hashSync(password, salt) : password,
       }
     );
-    // if(user){
-    //     jwt.destroy(token);
-    // }
     return res.status(200).json({ user });
   } catch (error) {
     return res.status(500).json(error);
   }
 };
-const loginWithToken = async (req, res) => {
-  // console.log(res.locals.token);
-  const { id: userID } = res.locals.token;
-  try {
-    const user = await User.findById(userID);
-    if (!user) {
-      return res.status(404).json({ errCode: 1, msg: "User is not found!!!" });
-    }
-    return res.status(200).json({ user });
-  } catch (error) {
-    return res.status(400).json({ error });
-  }
-};
 
-const logoutUser = async (req, res) => {
-  const token = res.locals.tokenDestroy;
-  try {
-    return res.status(200).json({ msg: "LogoutSuccess!" });
-  } catch (error) {
-    return res.status(500).json({ error });
-  }
-};
 
 const editUser = async (req, res) => {
   const { id: userID } = res.locals.token;
@@ -286,7 +251,6 @@ const changePassword = async (req, res) => {
 
 const getProfileUser = async (req, res) => {
   const { id: userID } = res.locals.token;
-  console.log("jsnakjds", userID);
   try {
     const user = await User.findById(userID);
     if (!user) {
@@ -314,8 +278,6 @@ module.exports = {
   loginUser,
   sendMailUser,
   resetPassword,
-  loginWithToken,
-  logoutUser,
   editUser,
   changePassword,
   getProfileUser,

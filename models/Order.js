@@ -97,6 +97,10 @@ const OrderSchema = new mongoose.Schema({
     paymentStatus: {
         type: String,
         default: '01'
+    },
+    shippingFee: {
+        type: Number,
+        default: 0
     }
 })
 
