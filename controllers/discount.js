@@ -195,6 +195,20 @@ const updateDiscount = async (req, res) => {
   }
 };
 
+const deleteMultiDiscount = async (req, res) => {
+  const { ids } = req.query;
+  try {
+    await DiscountSchema.remove({_id: {$in: ids}});
+    return res
+      .status(200)
+      .json({ success: true, message: "Delete successfully!" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
+  }
+};
+
 module.exports = {
   getAllDiscount,
   getDiscountId,
@@ -203,4 +217,5 @@ module.exports = {
   getDiscountWithCode,
   checkDiscountCode,
   updateDiscount,
+  deleteMultiDiscount,
 };
