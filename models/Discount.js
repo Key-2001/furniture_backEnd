@@ -15,7 +15,8 @@ const DiscountSchema = new mongoose.Schema({
         required: [true, 'amount use must required']
     },
     email: {
-        type: String
+        type: String,
+        default: ''
     }
 })
 
