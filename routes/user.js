@@ -9,7 +9,7 @@ router.route('/').get(getAllUsers).post(createUser);
 router.route('/:id').get(getSingleUser).patch(updateUser).delete(deleteUser);
 router.route('/login').post(loginUser);
 router.route('/send-mail').post(sendMailUser);
-router.route('/reset-password').post(requireAuth,resetPassword)
+router.route('/reset-password').put(requireAuth,resetPassword)
 router.route('/edit').put(requireAuth, editUser)
 router.route('/change-password').put(requireAuth, changePassword);
 router.route('/profile/me').get(requireAuth, getProfileUser)

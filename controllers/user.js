@@ -139,6 +139,7 @@ const sendMailUser = async (req, res) => {
     const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: "1h",
     });
+    // localStorage.setItem('token-reset-password', token)
     let user = await User.findOne({ email: email }).exec();
     if (!user) {
       return res
@@ -149,14 +150,14 @@ const sendMailUser = async (req, res) => {
       template: "forgotPassword",
       email: email,
       subject: "Reset Password!!!",
-      templateVars: { urlWeb: `${process.env.URL_CLIENT_RESET_PASS}${token}` },
+      templateVars: {
+        urlWeb: `${process.env.URL_CLIENT_RESET_PASS}?token=${token}`,
+      },
     });
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Successfully _ Pls check your EMAIL!!!",
-      });
+    return res.status(200).json({
+      success: true,
+      message: "Successfully _ Pls check your EMAIL!!!",
+    });
   } catch (error) {
     return res
       .status(500)
@@ -168,19 +169,14 @@ const resetPassword = async (req, res) => {
   const { email } = res.locals.token;
   const { password } = req.body;
   try {
-    let user = await User.findOneAndUpdate(
-      { email: email },
-      {
-        password:
-          password.length > 5 ? bcrypt.hashSync(password, salt) : password,
-      }
-    );
-    return res.status(200).json({ user });
+    await User.findOneAndUpdate({email: email}, {$set: {password: password.length > 5 ? bcrypt.hashSync(password, salt) : password}})
+    return res.status(200).json({ success: true, message: "Success!" });
   } catch (error) {
-    return res.status(500).json(error);
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
   }
 };
-
 
 const editUser = async (req, res) => {
   const { id: userID } = res.locals.token;

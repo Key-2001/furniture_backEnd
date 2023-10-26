@@ -1,52 +1,58 @@
-const mongoose = require('mongoose');
-const ProductSchema = require('../models/Product');
-const UserSchema = require('../models/User');
-const OrderSchema = require('../models/Order');
-
-const getDashboard = async (req,res) => {
-    try {
-        const productData = await ProductSchema.find();
-        const userData = await UserSchema.find();
-        const orderData = await OrderSchema.find();
-        let potentialProducts = [];
-        orderData.forEach(productList => {
-          productList.products.forEach(product => {
-            potentialProducts.push(product);
-          })
-        })
-        const productGroup = potentialProducts.reduce((result,cur) => {
-          let key = cur['idProduct'];
-          if(!result[key]){
-            result[key] = []
+const mongoose = require("mongoose");
+const ProductSchema = require("../models/Product");
+const UserSchema = require("../models/User");
+const OrderSchema = require("../models/Order");
+const Order = require("../models/Order");
+const User = require("../models/User");
+const Discount = require("../models/Discount");
+const moment = require("moment");
+const { cloneDeep, reduce } = require("lodash");
+const getDashboard = async (req, res) => {
+  try {
+    const countOrder = await Order.find().count();
+    const countProduct = await ProductSchema.find().count();
+    const countUser = await User.find().count();
+    const discountCount = await Discount.find().count();
+    const orderNumberLast7Days = await Order.find({
+      dateField: { $gte: moment().startOf("day").subtract(7, "days").toDate() },
+    });
+    const orderData = orderNumberLast7Days.reduce((result, current) => {
+      const date = new Date(current.createdDate).toISOString().slice(0, 10);
+      if (result.find((el) => el.date.includes(date))) {
+        const arr = result.map((item) => {
+          if (item.date.includes(date)) {
+            return {
+              ...item,
+              sum: Number(item.sum) + 1,
+              totalPrice: Number(item.totalPrice) + Number(current.totalPrice),
+            };
+          } else {
+            return item;
           }
-          result[key].push(cur)
-          return result;
-        },{})
-        let dataChart = [];
-        Object.values(productGroup)?.forEach((orderProduct) => {
-          const dataConvert = orderProduct.reduce((prev, cur) => {
-            let colorList = prev.color;
-            colorList.push(cur.color);
-            return{
-              name: cur.name,
-              amount: prev.amount + cur.amount,
-              price: cur.price,
-              color: colorList,
-              idProduct: cur.idProduct
-            }
-          },{name: '',amount: 0, price: 0, color: [], idProduct: ''})
-          dataChart.push(dataConvert);
-        })
-        return res.status(200).json({msg: 'success', data: {
-            productLength: productData?.length,
-            userLength: userData?.length,
-            orderLength: orderData?.length,
-            potentialUser: userData?.splice(0,10),
-            productGroup: dataChart
-        }})
-    } catch (error) {
-        return res.status(500).json({error})
-    }
-}
+        });
+        return [...arr];
+      }
+      return [
+        ...result,
+        { date: date, sum: 1, totalPrice: current.totalPrice },
+      ];
+    }, []);
+    return res.status(200).json({
+      success: true,
+      message: "Success!",
+      countNumber: {
+        orders: countOrder,
+        products: countProduct,
+        users: countUser,
+        discounts: discountCount,
+      },
+      orderData: orderData,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
+  }
+};
 
-module.exports = {getDashboard}
+module.exports = { getDashboard };

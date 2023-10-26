@@ -3,7 +3,6 @@ require("dotenv").config();
 
 const requireAuth = (req, res, next) => {
   const authorizationHeader = req.headers["authorization"];
-  // console.log('author',authorizationHeader);
   const token = authorizationHeader.split(" ")[1];
   res.locals.tokenDestroy = token;
   if (token) {
