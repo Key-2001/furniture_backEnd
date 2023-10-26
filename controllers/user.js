@@ -53,8 +53,8 @@ const createUser = async (req, res) => {
         .json({ success: false, message: "Your phone number is existed" });
     } else {
       return res
-        .status(400)
-        .json({ success: false, message: "Your email address is existed" });
+        .status(500)
+        .json({ success: false, message: "Something went wrong!", error });
     }
   }
 };

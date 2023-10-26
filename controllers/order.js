@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const OrderSchema = require("../models/Order");
 const ProductSchema = require("../models/Product");
 const User = require("../models/User");
-const Product = require("../models/Product");
+const Discount = require('../models/Discount')
 
 const getAllOrder = async (req, res) => {
   const { id: idUser } = res.locals.token;
@@ -52,6 +52,9 @@ const createOrder = async (req, res) => {
       )
     : Number(data.valueDiscount);
   try {
+    if(data.discountCode){
+      await Discount.findOneAndUpdate({idDiscount: data.discountCode}, {$inc: {amountUse: -1}})
+    }
     const order = await OrderSchema.create({
       idUser: userID,
       name: data.name,
