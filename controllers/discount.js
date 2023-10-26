@@ -4,27 +4,46 @@ const { sendMail } = require("../middleware/sendMail");
 require("dotenv").config();
 
 const getAllDiscount = async (req, res) => {
+  const page = req.query.page || 1;
+  const perPage = req.query.perPage || 10;
+  const idDiscount = req.query.discountCode || "";
   try {
-    const result = await DiscountSchema.find();
-    if (result.length === 0) {
-      return res
-        .status(200)
-        .json({ statusCode: 200, msg: "Discount is empty!!" });
-    }
-    return res
-      .status(200)
-      .json({ statusCode: 200, msg: "Success!", data: result });
+    const discounts = await DiscountSchema.find({
+      idDiscount: { $regex: new RegExp(idDiscount, "i") },
+    })
+      .sort({ createdDate: -1 })
+      .skip(perPage * page - perPage)
+      .limit(perPage);
+    const count = await DiscountSchema.find({
+      idDiscount: { $regex: new RegExp(idDiscount, "i") },
+    }).count();
+    return res.status(200).json({
+      success: true,
+      message: "Success!",
+      data: discounts,
+      page: {
+        totalPage: Math.ceil(count / perPage),
+        currentPage: page,
+      },
+    });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
   }
 };
 
 const getDiscountId = async (req, res) => {
   const { id } = req.params;
   try {
-    return res.status(200).json({ statusCode: 200, msg: "Success!" });
+    const discount = await DiscountSchema.findById(id);
+    return res
+      .status(200)
+      .json({ success: true, message: "Success", discount: discount });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
   }
 };
 
@@ -34,9 +53,11 @@ const createDiscount = async (req, res) => {
     const result = await DiscountSchema.create({ ...data, email: "" });
     return res
       .status(200)
-      .json({ statusCode: 200, msg: "Success!", data: result });
+      .json({ success: true, message: "Success!", data: result });
   } catch (error) {
-    return res.status(500).json({ error });
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
   }
 };
 
@@ -147,13 +168,30 @@ const checkDiscountCode = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Discount code has expired" });
     }
-    return res
-      .status(200)
-      .json({ success: true, message: "Apply discount code success!", discount: discount });
+    return res.status(200).json({
+      success: true,
+      message: "Apply discount code success!",
+      discount: discount,
+    });
   } catch (error) {
     return res
       .status(500)
       .json({ error, success: false, message: "Something went wrong" });
+  }
+};
+
+const updateDiscount = async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+  try {
+    await DiscountSchema.findByIdAndUpdate(id, data);
+    return res
+      .status(200)
+      .json({ success: true, message: "Update successfully!" });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ error, success: false, message: "Something went wrong!" });
   }
 };
 
@@ -164,4 +202,5 @@ module.exports = {
   createDiscountEmail,
   getDiscountWithCode,
   checkDiscountCode,
+  updateDiscount,
 };
