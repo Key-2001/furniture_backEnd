@@ -117,7 +117,7 @@ const createDiscountEmail = async (req, res) => {
 
     const result = await DiscountSchema.create({
       idDiscount: discountId,
-      valueDiscount: "20%",
+      valueDiscount: "50%",
       amountUse: 1,
       email: email,
     });
