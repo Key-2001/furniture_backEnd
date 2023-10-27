@@ -44,7 +44,11 @@ const UserSchema = new mongoose.Schema({
         type: String,
         trim:true,
         default:''
-    }
+    },
+    createdDate: {
+      type: Date,
+      default: new Date()
+  },
 })
 
 module.exports = mongoose.model('User',UserSchema)
