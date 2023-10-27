@@ -24,7 +24,7 @@ const getDashboard = async (req, res) => {
             return {
               ...item,
               sum: Number(item.sum) + 1,
-              totalPrice: Number(item.totalPrice) + Number(current.totalPrice),
+              totalCurrentPrice: Number(item.totalCurrentPrice) + Number(current.totalCurrentPrice),
             };
           } else {
             return item;
@@ -34,7 +34,7 @@ const getDashboard = async (req, res) => {
       }
       return [
         ...result,
-        { date: date, sum: 1, totalPrice: current.totalPrice },
+        { date: date, sum: 1, totalCurrentPrice: current.totalCurrentPrice },
       ];
     }, []);
     return res.status(200).json({

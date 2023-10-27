@@ -1,7 +1,6 @@
 const { isEmpty, result } = require("lodash");
 const mongoose = require("mongoose");
 const Order = require("../models/Order");
-const orderSchema = require("../models/Order");
 const User = require("../models/User");
 
 const getStatistic = async (req, res) => {
@@ -10,21 +9,62 @@ const getStatistic = async (req, res) => {
     const countUser = await User.find({
       createdDate: {
         $gte: new Date(startDate),
-        $lt: new Date(endDate),
+        $lt: new Date(
+          new Date(endDate).setDate(new Date(endDate).getDate() + 1)
+        ),
       },
-    }).count()
+    }).count();
     const countOrder = await Order.find({
       createdDate: {
         $gte: new Date(startDate),
-        $lt: new Date(endDate),
+        $lt: new Date(
+          new Date(endDate).setDate(new Date(endDate).getDate() + 1)
+        ),
       },
-    }).count()
+    }).count();
+    const orderNumberLast7Days = await Order.find({
+      createdDate: {
+        $gte: new Date(startDate),
+        $lt: new Date(
+          new Date(endDate).setDate(new Date(endDate).getDate() + 1)
+        ),
+      },
+    });
+
+    const orderRevenue = orderNumberLast7Days.reduce((result, current) => {
+      return result + current.totalCurrentPrice;
+    }, 0);
+    const orderData = orderNumberLast7Days.reduce((result, current) => {
+      const date = new Date(current.createdDate).toISOString().slice(0, 10);
+      if (result.find((el) => el.date.includes(date))) {
+        const arr = result.map((item) => {
+          if (item.date.includes(date)) {
+            return {
+              ...item,
+              sum: Number(item.sum) + 1,
+              totalCurrentPrice:
+                Number(item.totalCurrentPrice) +
+                Number(current.totalCurrentPrice),
+            };
+          } else {
+            return item;
+          }
+        });
+        return [...arr];
+      }
+      return [
+        ...result,
+        { date: date, sum: 1, totalCurrentPrice: current.totalCurrentPrice },
+      ];
+    }, []);
     return res.status(200).json({
       success: true,
       message: "Success!",
+      orderData: orderData,
       dataCount: {
         orders: countOrder,
         users: countUser,
+        revenue: orderRevenue,
       },
     });
   } catch (error) {
