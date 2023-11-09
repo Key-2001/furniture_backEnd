@@ -83,12 +83,22 @@ const getUserAdmin = async (req, res) => {
   const perPage = req.query.perPage || 10;
   const page = req.query.page || 1;
   const email = req.query.email || "";
+  const name = req.query.name || "";
+  const phoneNumber = req.query.phoneNumber || "";
   try {
-    const users = await User.find({ email: { $regex: email } })
+    const users = await User.find({
+      email: { $regex: new RegExp(email, "i") },
+      name: { $regex: new RegExp(name, "i") },
+      phoneNumber: new RegExp(phoneNumber, "i"),
+    })
       .select("-password")
       .skip(perPage * page - perPage)
       .limit(perPage);
-    const count = await User.find({ email: { $regex: email } }).count();
+    const count = await User.find({
+      email: { $regex: new RegExp(email, "i") },
+      name: { $regex: new RegExp(name, "i") },
+      phoneNumber: new RegExp(phoneNumber, "i"),
+    }).count();
     return res.status(200).json({
       success: true,
       message: "Success",
@@ -109,18 +119,21 @@ const getOrderAdmin = async (req, res) => {
   const perPage = req.query.perPage || 10;
   const page = req.query.page || 1;
   const email = req.query.email || "";
+  const name = req.query.name || "";
   const phoneNumber = req.query.phoneNumber || "";
   try {
     const orders = await Order.find({
-      email: { $regex: email },
-      phoneNumber: { $regex: phoneNumber },
+      email: { $regex: new RegExp(email, "i") },
+      phoneNumber: { $regex: new RegExp(phoneNumber, "i") },
+      name: { $regex: new RegExp(name, "i") },
     })
       .sort({ createdDate: -1 })
       .skip(perPage * page - perPage)
       .limit(perPage);
     const count = await Order.find({
-      email: { $regex: email },
-      phoneNumber: { $regex: phoneNumber },
+      email: { $regex: new RegExp(email, "i") },
+      phoneNumber: { $regex: new RegExp(phoneNumber, "i") },
+      name: { $regex: new RegExp(name, "i") },
     }).count();
     return res.status(200).json({
       success: true,
