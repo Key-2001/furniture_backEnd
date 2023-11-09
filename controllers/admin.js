@@ -6,6 +6,7 @@ const createToken = require("../middleware/createToken");
 const Product = require("../models/Product");
 const User = require("../models/User");
 const Order = require("../models/Order");
+const { enumCompany, enumCategory, enumStatus } = require("../constants/enum");
 
 const createAdmin = async (req, res) => {
   try {
@@ -56,13 +57,21 @@ const getProductAdmin = async (req, res) => {
   const perPage = req.query.perPage || 10;
   const page = req.query.page || 1;
   const query = req.query.name || "";
+  const company = req.query.company || enumCompany;
+  const category = req.query.category || enumCategory;
   try {
     const products = await Product.find({
       name: { $regex: new RegExp(query, "i") },
+      company: { $in: [...company] },
+      category: { $in: [...category] },
     })
       .skip(perPage * page - perPage)
       .limit(perPage);
-    const count = await Product.find({ name: { $regex: query } }).count();
+    const count = await Product.find({
+      name: { $regex: new RegExp(query, "i") },
+      company: { $in: [...company] },
+      category: { $in: [...category] },
+    }).count();
     return res.status(200).json({
       success: true,
       message: "Success",
@@ -89,7 +98,7 @@ const getUserAdmin = async (req, res) => {
     const users = await User.find({
       email: { $regex: new RegExp(email, "i") },
       name: { $regex: new RegExp(name, "i") },
-      phoneNumber: new RegExp(phoneNumber, "i"),
+      phoneNumber: { $regex: new RegExp(phoneNumber, "i") },
     })
       .select("-password")
       .skip(perPage * page - perPage)
@@ -121,11 +130,13 @@ const getOrderAdmin = async (req, res) => {
   const email = req.query.email || "";
   const name = req.query.name || "";
   const phoneNumber = req.query.phoneNumber || "";
+  const status = req.query.status || enumStatus;
   try {
     const orders = await Order.find({
       email: { $regex: new RegExp(email, "i") },
       phoneNumber: { $regex: new RegExp(phoneNumber, "i") },
       name: { $regex: new RegExp(name, "i") },
+      status: { $in: [...status] },
     })
       .sort({ createdDate: -1 })
       .skip(perPage * page - perPage)
@@ -134,6 +145,7 @@ const getOrderAdmin = async (req, res) => {
       email: { $regex: new RegExp(email, "i") },
       phoneNumber: { $regex: new RegExp(phoneNumber, "i") },
       name: { $regex: new RegExp(name, "i") },
+      status: { $in: [...status] },
     }).count();
     return res.status(200).json({
       success: true,

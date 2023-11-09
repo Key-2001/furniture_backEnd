@@ -7,15 +7,18 @@ const getAllDiscount = async (req, res) => {
   const page = req.query.page || 1;
   const perPage = req.query.perPage || 10;
   const idDiscount = req.query.discountCode || "";
+  const valueDiscount = req.query.valueDiscount || "";
   try {
     const discounts = await DiscountSchema.find({
       idDiscount: { $regex: new RegExp(idDiscount, "i") },
+      valueDiscount: { $regex: new RegExp(valueDiscount, "i") },
     })
       .sort({ createdDate: -1 })
       .skip(perPage * page - perPage)
       .limit(perPage);
     const count = await DiscountSchema.find({
       idDiscount: { $regex: new RegExp(idDiscount, "i") },
+      valueDiscount: { $regex: new RegExp(valueDiscount, "i") },
     }).count();
     return res.status(200).json({
       success: true,
@@ -198,7 +201,7 @@ const updateDiscount = async (req, res) => {
 const deleteMultiDiscount = async (req, res) => {
   const { ids } = req.query;
   try {
-    await DiscountSchema.remove({_id: {$in: ids}});
+    await DiscountSchema.remove({ _id: { $in: ids } });
     return res
       .status(200)
       .json({ success: true, message: "Delete successfully!" });
