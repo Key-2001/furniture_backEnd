@@ -127,7 +127,7 @@ const getOrderAdmin = async (req, res) => {
       phoneNumber: { $regex: new RegExp(phoneNumber, "i") },
       name: { $regex: new RegExp(name, "i") },
     })
-      .sort({ createdDate: -1 })
+      .sort({ createdAt: -1 })
       .skip(perPage * page - perPage)
       .limit(perPage);
     const count = await Order.find({

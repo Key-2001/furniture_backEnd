@@ -16,10 +16,6 @@ const OrderSchema = new mongoose.Schema({
         required: [true, 'Phone number is required!'],
         trim: true
     },
-    createdDate: {
-        type: Date,
-        default: new Date()
-    },
     email: {
         type: String,
         required: [true, 'Email is required!'],
@@ -102,6 +98,6 @@ const OrderSchema = new mongoose.Schema({
         type: Number,
         default: 0
     }
-})
+}, {timestamps: true})
 
 module.exports = mongoose.model('Order',OrderSchema);

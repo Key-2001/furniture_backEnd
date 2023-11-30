@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 const OrderSchema = require("../models/Order");
 const ProductSchema = require("../models/Product");
 const User = require("../models/User");
-const Discount = require('../models/Discount')
+const Discount = require('../models/Discount');
+const Product = require("../models/Product");
 
 const getAllOrder = async (req, res) => {
   const { id: idUser } = res.locals.token;
@@ -14,6 +15,7 @@ const getAllOrder = async (req, res) => {
       idUser: idUser,
       email: { $regex: email },
     })
+    .sort({ updatedAt: -1 })
       .skip(perPage * page - perPage)
       .limit(perPage);
     const count = await OrderSchema.find({
@@ -55,6 +57,9 @@ const createOrder = async (req, res) => {
     if(data.discountCode){
       await Discount.findOneAndUpdate({idDiscount: data.discountCode}, {$inc: {amountUse: -1}})
     }
+    JSON.parse(data.products).forEach(async el => {
+      await Product.updateOne({_id: el?.id.split("_")[0], "stock._id": el.id.split("_")[1]}, {$inc: {"stock.$.amount": -Number(el?.amount <= el?.maxAmount ? el?.amount : el?.maxAmount)}});
+    })
     const order = await OrderSchema.create({
       idUser: userID,
       name: data.name,
