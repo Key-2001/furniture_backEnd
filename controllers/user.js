@@ -51,6 +51,10 @@ const createUser = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Your phone number is existed" });
+    } else if (error?.keyPattern?.email === 1) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Your email is existed" });
     } else {
       return res
         .status(500)
@@ -169,7 +173,15 @@ const resetPassword = async (req, res) => {
   const { email } = res.locals.token;
   const { password } = req.body;
   try {
-    await User.findOneAndUpdate({email: email}, {$set: {password: password.length > 5 ? bcrypt.hashSync(password, salt) : password}})
+    await User.findOneAndUpdate(
+      { email: email },
+      {
+        $set: {
+          password:
+            password.length > 5 ? bcrypt.hashSync(password, salt) : password,
+        },
+      }
+    );
     return res.status(200).json({ success: true, message: "Success!" });
   } catch (error) {
     return res

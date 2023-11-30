@@ -7,7 +7,7 @@ const getStatistic = async (req, res) => {
   const { startDate, endDate } = req.query;
   try {
     const countUser = await User.find({
-      createdDate: {
+      createdAt: {
         $gte: new Date(startDate),
         $lt: new Date(
           new Date(endDate).setDate(new Date(endDate).getDate() + 1)
@@ -15,7 +15,7 @@ const getStatistic = async (req, res) => {
       },
     }).count();
     const countOrder = await Order.find({
-      createdDate: {
+      createdAt: {
         $gte: new Date(startDate),
         $lt: new Date(
           new Date(endDate).setDate(new Date(endDate).getDate() + 1)
@@ -23,7 +23,7 @@ const getStatistic = async (req, res) => {
       },
     }).count();
     const orderNumberLast7Days = await Order.find({
-      createdDate: {
+      createdAt: {
         $gte: new Date(startDate),
         $lt: new Date(
           new Date(endDate).setDate(new Date(endDate).getDate() + 1)
@@ -35,7 +35,7 @@ const getStatistic = async (req, res) => {
       return result + current.totalCurrentPrice;
     }, 0);
     const orderData = orderNumberLast7Days.reduce((result, current) => {
-      const date = new Date(current.createdDate).toISOString().slice(0, 10);
+      const date = new Date(current.createdAt).toISOString().slice(0, 10);
       if (result.find((el) => el.date.includes(date))) {
         const arr = result.map((item) => {
           if (item.date.includes(date)) {
