@@ -13,7 +13,7 @@ const getAllDiscount = async (req, res) => {
       idDiscount: { $regex: new RegExp(idDiscount, "i") },
       valueDiscount: { $regex: new RegExp(valueDiscount, "i") },
     })
-      .sort({ createdDate: -1 })
+      .sort({ createdAt: -1 })
       .skip(perPage * page - perPage)
       .limit(perPage);
     const count = await DiscountSchema.find({
@@ -88,7 +88,7 @@ const createDiscountEmail = async (req, res) => {
     await sendMail({
       template: "discount",
       email: email,
-      subject: "Discount for you <3!!!!",
+      subject: "Welcome Aboard! Enjoy 50% Off Your First Order!",
       templateVars: { discountId: discountId, urlWeb: process.env.URL_CLIENT },
     });
 
