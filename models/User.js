@@ -45,10 +45,8 @@ const UserSchema = new mongoose.Schema({
         trim:true,
         default:''
     },
-    createdDate: {
-      type: Date,
-      default: new Date()
-  },
+}, {
+    timestamps: true
 })
 
 module.exports = mongoose.model('User',UserSchema)

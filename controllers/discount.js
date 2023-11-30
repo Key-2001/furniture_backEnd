@@ -13,7 +13,7 @@ const getAllDiscount = async (req, res) => {
       idDiscount: { $regex: new RegExp(idDiscount, "i") },
       valueDiscount: { $regex: new RegExp(valueDiscount, "i") },
     })
-      .sort({ createdDate: -1 })
+      .sort({ createdAt: -1 })
       .skip(perPage * page - perPage)
       .limit(perPage);
     const count = await DiscountSchema.find({

@@ -17,7 +17,7 @@ const getDashboard = async (req, res) => {
       dateField: { $gte: moment().startOf("day").subtract(7, "days").toDate() },
     });
     const orderData = orderNumberLast7Days.reduce((result, current) => {
-      const date = new Date(current.createdDate).toISOString().slice(0, 10);
+      const date = new Date(current.createdAt).toISOString().slice(0, 10);
       if (result.find((el) => el.date.includes(date))) {
         const arr = result.map((item) => {
           if (item.date.includes(date)) {

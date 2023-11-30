@@ -51,6 +51,8 @@ const createUser = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Your phone number is existed" });
+    } else if(error?.keyPattern?.email === 1) {
+      return res.status(400).json({success: false, message: "Your email is existed"})
     } else {
       return res
         .status(500)
